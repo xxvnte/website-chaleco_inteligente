@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="ligth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chaleco Inteligente para Ciclistas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .info {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .info p {
+            margin-bottom: 10px;
+        }
+        .info p:last-child {
+            margin-bottom: 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body> 
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+        <div class="container">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+                <div class="col-md-3 mb-2 mb-md-0">
+                    <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                        <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+                    </a>
+                </div>
+
+                <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link px-2">Inicio</a></li>
+                    <li><a href="/nosotros" class="nav-link px-2">Sobre el proyecto</a></li>
+                    <li><a href="/mantenimiento" class="nav-link px-2">Mantenimiento</a></li>
+                </ul>
+
+                <div class="col-md-3 text-end">
+                    {{#if isAuthenticated}}
+                    <a href="/user_profile" class="btn btn-outline-primary me-2">Perfil</a>
+                    <a href="/datos" class="btn btn-outline-primary me-2 disabled">Datos</a>
+                    {{else}}
+                    <a href="/register" class="btn btn-outline-primary me-2">Registrarse</a>
+                    <a href="/login" class="btn btn-outline-primary me-2">Iniciar sesión</a>
+                    {{/if}}
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Chaleco Inteligente para Ciclistas</h1>
+        </div>
+
+        <div class="info">
+            <h2>Datos de Frecuencia Cardíaca y Oxímetro</h2>
+            <div id="saludData"></div>
+        </div>
+
+        <div class="info">
+            <h2>Datos de GPS</h2>
+            <div id="gpsData"></div>
+        </div>
+
+        <div class="info">
+            <h2>Calorías Quemadas</h2>
+            <div id="calorias"></div>
+        </div>
+    </div>
+
+<script>
+  fetch('/api/usuarioData')
+    .then(response => response.json())
+    .then(userData => {
+      var usuarioData = {
+        sexo: userData.sexo,
+        peso: userData.peso,
+        altura: userData.altura,
+        edad: userData.edad
+      };
+
+      fetch('/api/saludData')
+        .then(response => response.json())
+        .then(saludData => {
+          var html = '<table>';
+          html += '<tr><th>Frecuencia Cardíaca</th><th>|</th><th>Oxímetro</th><th>|</th><th>Tiempo</th></tr>';
+
+          var startIndex = Math.max(0, saludData.length - 4);
+          for (var i = startIndex; i < saludData.length; i++) {
+            var data = saludData[i];
+            html += '<tr><td>' + data.frecuencia_cardiaca + '</td><td>|</td><td>' + data.oximetro + '</td><td>|</td><td>' + data.tiempo + '</td></tr>';
+          }
+
+          html += '</table>';
+
+          var sumaFrecuenciaCardiaca = 0;
+          var sumaOximetro = 0;
+          for (var j = 0; j < saludData.length; j++) {
+            sumaFrecuenciaCardiaca += parseInt(saludData[j].frecuencia_cardiaca);
+            sumaOximetro += parseInt(saludData[j].oximetro);
+          }
+          var promedioFrecuenciaCardiaca = sumaFrecuenciaCardiaca / saludData.length;
+          var promedioOximetro = sumaOximetro / saludData.length;
+
+          html += '<br>';
+          html += '<table>';
+          html += '<tr><th></th><th>Promedio actual</th><th>Promedio sano</th></tr>';
+          html += '<tr><td>Frecuencia Cardíaca</td><td>' + promedioFrecuenciaCardiaca.toFixed(2) + '</td><td>60-100 latidos por minuto</td></tr>';
+          html += '<tr><td>Oxímetro</td><td>' + promedioOximetro.toFixed(2) + '</td><td>95-100%</td></tr>';
+          html += '</table>';
+
+          document.getElementById('saludData').innerHTML = html;
+        });
+
+    fetch('/api/gpsData')
+      .then(response => response.json())
+      .then(gpsDataProvided => {
+        // Convertimos tiempos a Date
+        gpsDataProvided.forEach(data => {
+            var timeParts = data.tiempo.split(':');
+            var now = new Date();
+            data.tiempo = new Date(now.getFullYear(), now.getMonth(), now.getDate(), timeParts[0], timeParts[1], timeParts[2]);
+        });
+
+        // Agrupamos los datos de GPS por fecha
+        var gpsDataPorFecha = {};
+        gpsDataProvided.forEach(data => {
+            var fecha = data.fecha.split('T')[0];
+            if (!gpsDataPorFecha[fecha]) {
+                gpsDataPorFecha[fecha] = [];
+            }
+            gpsDataPorFecha[fecha].push(data);
+        });
+
+        var caloriasPorFecha = {};
+        var distanciaPorFecha = {};
+        var tiempoPorFecha = {};
+
+        // Calculamos las calorías quemadas, la distancia total y el tiempo total para cada fecha
+        Object.keys(gpsDataPorFecha).forEach(fecha => {
+            var gpsData = gpsDataPorFecha[fecha];
+            var distanciaTotal = 0;
+            var tiempoTotal = 0;
+            var ubicacionAnterior = { latitud: parseFloat(gpsData[0].latitud), longitud: parseFloat(gpsData[0].longitud) };
+
+            for (var i = 1; i < gpsData.length; i++) {
+                var ubicacionActual = { latitud: parseFloat(gpsData[i].latitud), longitud: parseFloat(gpsData[i].longitud) };
+                var tiempoActual = gpsData[i].tiempo.getTime();
+                var tiempoAnterior = gpsData[i - 1].tiempo.getTime();
+                var tiempo = (tiempoActual - tiempoAnterior) / 1000;
+                var distancia = calcularDistancia(ubicacionAnterior, ubicacionActual) * 1000;
+                distanciaTotal += distancia;
+                tiempoTotal += tiempo;
+                ubicacionAnterior = ubicacionActual;
+            }
+
+            var velocidadMedia = tiempoTotal > 0 ? (distanciaTotal / tiempoTotal) * 3.6 : 0; 
+            var METs = 1.5 + velocidadMedia * 0.2;
+            var calorias = METs * usuarioData.peso * (tiempoTotal / 60 / 60); 
+
+            caloriasPorFecha[fecha] = calorias;
+            distanciaPorFecha[fecha] = distanciaTotal;
+            tiempoPorFecha[fecha] = tiempoTotal;
+        });
+
+        // Ordenamos las fechas y tomamos las últimas 3
+        var fechas = Object.keys(caloriasPorFecha).sort((a, b) => new Date(b) - new Date(a)).slice(0, 3);
+        var htmlCalorias = '<table>';
+        htmlCalorias += '<tr><th>Calorías gastadas</th><th>|</th><th>Fecha</th></tr>';
+        fechas.forEach(fecha => {
+            htmlCalorias += '<tr><td>' + caloriasPorFecha[fecha].toFixed(2) + '</td><td>|</td><td>' + fecha + '</td></tr>';
+        });
+        htmlCalorias += '</table>';
+        document.getElementById('calorias').innerHTML = htmlCalorias;
+
+        var htmlGPS = '<table>';
+        htmlGPS += '<tr><th>Fecha</th><th>Tiempo Total (min)</th><th>Distancia Total (m)</th><th>Velocidad Media (km/h)</th></tr>';
+        fechas.forEach(fecha => {
+            var velocidadMedia = tiempoPorFecha[fecha] > 0 ? (distanciaPorFecha[fecha] / tiempoPorFecha[fecha]) * 3.6 : 0; 
+            htmlGPS += '<tr><td>' + fecha + '</td><td>' + (tiempoPorFecha[fecha] / 60).toFixed(2) + '</td><td>' + distanciaPorFecha[fecha].toFixed(2) + '</td><td>' + velocidadMedia.toFixed(2) + '</td></tr>';
+        });
+        htmlGPS += '</table>';
+        document.getElementById('gpsData').innerHTML = htmlGPS;
+      });
+  });
+
+  function calcularDistancia(punto1, punto2) {
+    var R = 6371; // Radio de la tierra en km
+    var dLat = (punto2.latitud - punto1.latitud) * Math.PI / 180;
+    var dLon = (punto2.longitud - punto1.longitud) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(punto1.latitud * Math.PI / 180) * Math.cos(punto2.latitud * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var distancia = R * c;
+    return distancia;
+  }
+</script>
+
+    {{> container}}
+
+</body>
+</html>
