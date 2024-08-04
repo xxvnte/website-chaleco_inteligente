@@ -1,9 +1,9 @@
 # website-chaleco_inteligente
 Interfaz visual para proyecto de chaleco inteligente 
 
-<img src="https://github.com/user-attachments/assets/400ee894-233b-4919-a051-361dbb13a779" alt="WhatsApp Image 2024-07-19 at 2 53 16 PM" width="600" height="450">
-<br/>
-<img src="https://github.com/user-attachments/assets/64636713-406d-460d-a5a1-e806e020bfb3" alt="WhatsApp Image 2024-07-19 at 2 56 38 PM" width="600" height="450">
-<br/>
-<img src="https://github.com/user-attachments/assets/4124096c-ee1c-47be-a02d-31f6f7483c9a" alt="WhatsApp Image 2024-07-19 at 2 57 20 PM" width="600" height="450">
-
+![inicio](https://github.com/user-attachments/assets/d76e0e49-be2f-4171-9c92-a19f30fecf27)
+![registro](https://github.com/user-attachments/assets/86477d7e-50a9-4024-b0a0-9f4da5071286)
+![ingreso](https://github.com/user-attachments/assets/09690201-69e9-47d5-8d6e-63cd2952c4ed)
+![perfil](https://github.com/user-attachments/assets/5083360d-4d33-4c45-84b2-238f4f490904)
+![edituser](https://github.com/user-attachments/assets/1c34f6cb-ec2d-4083-88de-0e67f8772d70)
+![datos](https://github.com/user-attachments/assets/e52efa6f-1296-4c54-a448-e7b7dfe5578c)
