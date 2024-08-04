@@ -74,7 +74,7 @@ export function UserCard() {
 
   return (
     <div className="bg-white max-w-2xl shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 sm:px-6">
+      <div className="px-4 py-4 sm:px-6">
         <h3 className="text-lg leading-6 font-medium text-gray-900">
           Perfil del Usuario
         </h3>
@@ -126,13 +126,13 @@ export function UserCard() {
       </div>
       <div className="px-4 py-4 sm:px-6">
         <button
-          className="mr-4 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="mr-4 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           onClick={() => navigate(`/edit_user/${userId}`)}
         >
           Editar Perfil
         </button>
         <button
-          className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           onClick={handleOpenModal}
         >
           Eliminar Usuario
@@ -169,14 +169,14 @@ export function UserCard() {
               <div className="bg-gray-50 px-4 py-4 sm:px-6">
                 <button
                   type="button"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   onClick={handleDeleteUser}
                 >
                   Eliminar
                 </button>
                 <button
                   type="button"
-                  className="ml-4 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="ml-4 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                   onClick={handleCloseModal}
                 >
                   Cancelar
