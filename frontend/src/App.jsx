@@ -15,7 +15,7 @@ function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <main className="bg-zinc-900 screen">
+    <main className="bg-gray-400 min-h-screen">
       <Navbar />
       <div className="container mx-auto p-10">
         <Routes>
