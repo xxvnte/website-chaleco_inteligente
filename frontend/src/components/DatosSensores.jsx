@@ -35,6 +35,9 @@ const DatosSensores = () => {
         calcularEstadisticasGPS(response.data.gpsData, response.data.user);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          navigate("/login");
+        }
       }
     };
 
