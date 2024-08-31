@@ -35,7 +35,7 @@ export function UserCard() {
           "Error al obtener el perfil del usuario:",
           error.response ? error.response.statusText : error.message
         );
-        if (error.response && error.response.status === 403) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
           navigate("/login");
         }
       }
