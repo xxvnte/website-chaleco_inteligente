@@ -8,7 +8,7 @@ const authenticate = (req, res, next) => {
         console.log("error destroying session:", err);
       }
       res.clearCookie("token");
-      return res.redirect("/login");
+      return res.status(401).json({ message: "Unauthorized" });
     });
   } else {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -18,7 +18,7 @@ const authenticate = (req, res, next) => {
             console.error("error destroying session:", err);
           }
           res.clearCookie("token");
-          return res.redirect("/login");
+          return res.status(401).json({ message: "Unauthorized" });
         });
       } else {
         if (!req.session.isAuthenticated || req.session.userId !== decoded.id) {
@@ -27,7 +27,7 @@ const authenticate = (req, res, next) => {
               console.error("error destroying session:", err);
             }
             res.clearCookie("token");
-            return res.redirect("/login");
+            return res.status(401).json({ message: "Unauthorized" });
           });
         } else {
           req.user = decoded;
