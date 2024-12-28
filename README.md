@@ -1,4 +1,4 @@
-# website-chaleco_inteligente
+# website-chaleco_inteligente waaaaaa
 Interfaz visual para proyecto de chaleco inteligente 
 
 ![inicio](https://github.com/user-attachments/assets/d76e0e49-be2f-4171-9c92-a19f30fecf27)
