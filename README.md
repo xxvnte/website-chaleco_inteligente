@@ -25,6 +25,7 @@ website_chaleco_inteligente/
    npm install
    node index
 ```
+    Requisito: Tener la base de datos PSQL instalada y corriendo localmente.
 
 	El backend estará disponible en: http://localhost:3000
 
