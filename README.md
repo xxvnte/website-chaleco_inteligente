@@ -1,5 +1,44 @@
 # website-chaleco_inteligente
-Interfaz visual para proyecto de chaleco inteligente 
+
+Este es un proyecto universitario que consiste en el desarrollo de la interfaz para monitoreo de los datos proporcionados por un chaleco inteligente. Está compuesto por un backend desarrollado con Node.js y Express, y un frontend construido con React.
+
+# Estructura del proyecto
+
+```
+website_chaleco_inteligente/  
+├── chaleco-inteligente/ # Backend (Node.js + Express + PostgreSQL)  
+├── chaleco-inteligente-ui/ # Frontend (React + Tailwind CSS)
+```
+# Configuración y Ejecución
+
+1. Clona el repositorio y entra al directorio del proyecto:
+
+```shell
+   git clone https://github.com/xxvnte/website-chaleco_inteligente.git
+   cd website-chaleco_inteligente
+```
+
+2. Ejecuta el backend con los comandos:
+
+```shell
+   cd chaleco-inteligente
+   npm install
+   node index
+```
+
+	El backend estará disponible en: http://localhost:3000
+
+3. Ejecuta el frontend con los comandos:
+
+```shell
+   cd chaleco-inteligente-ui
+   npm install
+   npm run dev
+```
+
+	El frontend estará disponible en: http://localhost:5173
+
+4. Muestras de como funciona el sistema
 
 ![inicio](https://github.com/user-attachments/assets/d76e0e49-be2f-4171-9c92-a19f30fecf27)
 ![registro](https://github.com/user-attachments/assets/86477d7e-50a9-4024-b0a0-9f4da5071286)
