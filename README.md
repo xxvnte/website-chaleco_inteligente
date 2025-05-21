@@ -1,6 +1,6 @@
 # website-chaleco_inteligente
 
-Este es un proyecto universitario que consiste en el desarrollo de la interfaz para monitoreo de los datos proporcionados por un chaleco inteligente. Está compuesto por un backend desarrollado con Node.js y Express, y un frontend construido con React.
+Este es un proyecto universitario que consiste en el desarrollo de la interfaz para el monitoreo de los datos proporcionados por un chaleco inteligente. Está compuesto por un backend desarrollado con Node.js y Express, y un frontend construido con React.
 
 # Estructura del proyecto
 
@@ -39,7 +39,7 @@ website_chaleco_inteligente/
 
 	El frontend estará disponible en: http://localhost:5173
 
-4. Muestras de como funciona el sistema
+# Cómo funciona el sistema
 
 ![datos](https://github.com/user-attachments/assets/e52efa6f-1296-4c54-a448-e7b7dfe5578c)
 ![inicio](https://github.com/user-attachments/assets/d76e0e49-be2f-4171-9c92-a19f30fecf27)
