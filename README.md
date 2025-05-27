@@ -5,23 +5,23 @@ Este es un proyecto universitario que consiste en el desarrollo de la interfaz p
 # Estructura del proyecto
 
 ```
-website_chaleco_inteligente/  
-├── chaleco-inteligente/ # Backend (Node.js + Express + PostgreSQL)  
-├── chaleco-inteligente-ui/ # Frontend (React + Tailwind CSS)
+chaleco-inteligente/  
+├── backend/ (Node.js + Express + PostgreSQL)  
+├── frontend/ (React + Tailwind CSS)
 ```
 # Configuración y Ejecución
 
 1. Clona el repositorio y entra al directorio del proyecto:
 
 ```shell
-   git clone https://github.com/xxvnte/website-chaleco_inteligente.git
-   cd website-chaleco_inteligente
+   git clone https://github.com/xxvnte/chaleco-inteligente.git
+   cd chaleco-inteligente
 ```
 
 2. Ejecuta el backend con los comandos:
 
 ```shell
-   cd chaleco-inteligente
+   cd backend
    npm install
    node index
 ```
@@ -32,7 +32,7 @@ website_chaleco_inteligente/
 3. Ejecuta el frontend con los comandos:
 
 ```shell
-   cd chaleco-inteligente-ui
+   cd frontend
    npm install
    npm run dev
 ```
