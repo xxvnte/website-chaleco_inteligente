@@ -7,6 +7,8 @@ import cors from "cors";
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -18,15 +20,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const isProduction = process.env.NODE_ENV === "production";
-
 app.use(
   session({
     secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: isProduction,
+      secure: isProduction,   
       sameSite: isProduction ? "none" : "lax",
       httpOnly: true,
     },
@@ -34,20 +34,9 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isAuthenticated;
+  res.locals.isAuthenticated = !!req.session.isAuthenticated;
+  res.locals.userId = req.session.userId || null;
   next();
 });
-
-const setLocals = (req, res, next) => {
-  if (req.session.isAuthenticated) {
-    res.locals.isAuthenticated = true;
-    res.locals.userId = req.session.userId;
-  } else {
-    res.locals.isAuthenticated = false;
-  }
-  next();
-};
-
-app.use(setLocals);
 
 export { app };
