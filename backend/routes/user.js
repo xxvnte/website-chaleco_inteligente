@@ -92,9 +92,8 @@ router.post("/login", async (req, res) => {
 
 router.get("/user_profile/:id", authenticate, async (req, res) => {
   const { id } = req.params;
-  const { userId } = req.session;
 
-  if (parseInt(id, 10) !== parseInt(userId, 10)) {
+  if (parseInt(id, 10) !== parseInt(req.user.id, 10)) {
     return res.status(403).send("No tienes permiso para ver estos datos");
   }
 
