@@ -1,7 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import pkg from "pg";
-const { Pool } = pkg;
 import session from "express-session";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -45,21 +43,4 @@ const setLocals = (req, res, next) => {
 
 app.use(setLocals);
 
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "tics",
-  password: "postgres",
-  port: 5432,
-});
-
-pool
-  .connect()
-  .then(() => {
-    console.log("Connected to PostgreSQL Database");
-  })
-  .catch((error) => {
-    console.error(`Connection refused: ${error}`);
-  });
-
-export { app, pool };
+export { app };

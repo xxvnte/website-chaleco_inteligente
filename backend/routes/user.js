@@ -1,5 +1,5 @@
 import express from "express";
-import { pool } from "../app.js";
+import sql from "../config/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import authenticate from "../middlewares/auth.js";
@@ -11,11 +11,10 @@ const router = express.Router();
 
 async function getUserById(id) {
   try {
-    const user = await pool.query(
-      "SELECT * FROM usuario_info WHERE id_usuario = $1",
-      [id]
-    );
-    return user.rows[0];
+    const [user] = await sql`
+      SELECT * FROM usuario_info WHERE id_usuario = ${id}
+    `;
+    return user;
   } catch (error) {
     console.error("Error al obtener el usuario:", error);
     throw error;
@@ -28,21 +27,18 @@ router.post("/register", async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(clave, 10);
-    const result = await pool.query(
-      "INSERT INTO usuario_info (username, edad, peso, altura, sexo, clave, num_emergencia) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
-      [
-        nombre,
-        edad,
-        peso,
-        estatura,
-        genero,
-        hashedPassword,
-        contacto_de_confianza,
-      ]
-    );
-    const userId = result.rows[0].id_usuario;
+
+    const [result] = await sql`
+      INSERT INTO usuario_info 
+        (username, edad, peso, altura, sexo, clave, num_emergencia) 
+      VALUES 
+        (${nombre}, ${edad}, ${peso}, ${estatura}, ${genero}, ${hashedPassword}, ${contacto_de_confianza}) 
+      RETURNING id_usuario
+    `;
+
+    const userId = result.id_usuario;
     console.log(`Usuario ${nombre} registrado con éxito.`);
-    res.status(200).send("Cuenta creada")
+    res.status(200).send("Cuenta creada");
   } catch (error) {
     console.error(error);
     res.status(500).send("Hubo un error al crear el usuario");
@@ -53,18 +49,25 @@ router.post("/login", async (req, res) => {
   const { nombre, clave } = req.body;
 
   try {
-    const user = await pool.query(
-      "SELECT * FROM usuario_info WHERE username = $1",
-      [nombre]
-    );
+    const user = await sql`
+      SELECT * FROM usuario_info WHERE username = ${nombre}
+    `;
 
-    if (user.rows.length > 0) {
-      if (await bcrypt.compare(clave, user.rows[0].clave)) {
+    console.log("Usuario encontrado:", user);
+
+    if (user.length > 0) {
+      const usuario = user[0];
+
+      if (await bcrypt.compare(clave, usuario.clave)) {
         const token = jwt.sign(
-          { id: user.rows[0].id_usuario },
+          { id: usuario.id_usuario },
           process.env.JWT_SECRET,
           { expiresIn: "1h" }
         );
+
+        console.log(`Usuario ${nombre} ha iniciado sesión con éxito.`);
+        console.log("Token generado:", token);
+
         res.cookie("token", token, {
           httpOnly: true,
           secure: false,
@@ -73,8 +76,8 @@ router.post("/login", async (req, res) => {
         });
 
         req.session.isAuthenticated = true;
-        req.session.userId = user.rows[0].id_usuario;
-        res.json({ success: true, userId: user.rows[0].id_usuario });
+        req.session.userId = usuario.id_usuario;
+        res.json({ success: true, userId: usuario.id_usuario });
       } else {
         res.status(401).send("Nombre o clave incorrectos");
       }
@@ -130,21 +133,27 @@ router.post("/update_user/:id", authenticate, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await pool.query(
-      "SELECT sexo FROM usuario_info WHERE id_usuario = $1",
-      [id]
-    );
-    const genero = user.rows[0].sexo;
+    const [user] = await sql`
+      SELECT sexo FROM usuario_info WHERE id_usuario = ${id}
+    `;
+    const genero = user?.sexo;
 
-    let hashedPassword;
+    let hashedPassword = null;
     if (clave) {
       hashedPassword = await bcrypt.hash(clave, 10);
     }
 
-    await pool.query(
-      "UPDATE usuario_info SET username = $2, num_emergencia = $3, clave = COALESCE($4, clave), edad = $5, peso = $6, sexo = $7, altura = $8 WHERE id_usuario = $1",
-      [id, username, num_emergencia, hashedPassword, edad, peso, genero, altura]
-    );
+    await sql`
+      UPDATE usuario_info SET 
+        username = ${username}, 
+        num_emergencia = ${num_emergencia}, 
+        clave = COALESCE(${hashedPassword}, clave), 
+        edad = ${edad}, 
+        peso = ${peso}, 
+        sexo = ${genero}, 
+        altura = ${altura}
+      WHERE id_usuario = ${id}
+    `;
 
     res.json({ message: "Perfil actualizado" });
   } catch (error) {
@@ -169,12 +178,12 @@ router.post("/delete_user/:id", authenticate, async (req, res) => {
   }
 
   try {
-    await pool.query("DELETE FROM datos_sensores WHERE id_usuario = $1", [id]);
-    await pool.query("DELETE FROM usuario_info WHERE id_usuario = $1", [id]);
+    await sql`DELETE FROM datos_sensores WHERE id_usuario = ${id}`;
+    await sql`DELETE FROM usuario_info WHERE id_usuario = ${id}`;
 
     req.session.destroy(() => {
       res.clearCookie("token");
-      res.status(200).send("Cuenta eliminada")
+      res.status(200).send("Cuenta eliminada");
     });
   } catch (error) {
     console.error("Error al eliminar el usuario:", error);
