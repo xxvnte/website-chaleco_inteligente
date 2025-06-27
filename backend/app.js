@@ -17,14 +17,17 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   session({
     secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,  
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       httpOnly: true,
     },
   })

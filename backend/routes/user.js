@@ -118,6 +118,7 @@ router.get("/edit_user/:id", authenticate, async (req, res) => {
   try {
     const user = await getUserById(id);
     if (user) {
+      console.log("Usuario encontrado para editar:", user);
       return res.json(user);
     } else {
       return res.status(404).send("Usuario no encontrado");
