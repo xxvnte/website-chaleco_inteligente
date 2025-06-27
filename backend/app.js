@@ -22,7 +22,7 @@ app.use(
     secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false, sameSite: "lax", httpOnly: true },
+    cookie: { secure: false, sameSite: "none" },
   })
 );
 
