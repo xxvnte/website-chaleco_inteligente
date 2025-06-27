@@ -21,8 +21,12 @@ app.use(
   session({
     secret: process.env.JWT_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, sameSite: "none" },
+    saveUninitialized: false,
+    cookie: {
+      secure: true,  
+      sameSite: "none",
+      httpOnly: true,
+    },
   })
 );
 
