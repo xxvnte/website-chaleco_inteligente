@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import config from "../../config.json";
 
 export function UserCard() {
   const { userId } = useAuth();
@@ -19,23 +20,31 @@ export function UserCard() {
     const fetchData = async () => {
       try {
         if (parseInt(paramUserId, 10) === parseInt(userId, 10)) {
-          const response = await axios.get(
-            `http://localhost:3000/edit_user/${paramUserId}`,
+          const response = await fetch(
+            `${config.api.url}/edit_user/${paramUserId}`,
             {
-              withCredentials: true,
+              method: "GET",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
             }
           );
-          console.log("Datos del usuario:", response.data);
-          setUser(response.data);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("Datos del usuario:", data);
+          setUser(data);
         } else {
           navigate("/login");
         }
       } catch (error) {
-        console.error(
-          "Error al obtener el perfil del usuario:",
-          error.response ? error.response.statusText : error.message
-        );
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        console.error("Error al obtener el perfil del usuario:", error.message);
+
+        if (error.message.includes("401") || error.message.includes("403")) {
           navigate("/login");
         }
       }
@@ -46,16 +55,13 @@ export function UserCard() {
 
   const handleDeleteUser = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/delete_user/${userId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${config.api.url}/delete_user/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
 
       if (response.ok) {
         navigate("/login");
@@ -127,7 +133,9 @@ export function UserCard() {
       <div className="px-4 py-4 sm:px-6">
         <button
           className="mr-4 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          onClick={() => navigate(`/edit_user/${userId}`)}
+          onClick={() =>
+            navigate(`/edit_user/${userId}`, { withCredentials: true })
+          }
         >
           Editar Perfil
         </button>

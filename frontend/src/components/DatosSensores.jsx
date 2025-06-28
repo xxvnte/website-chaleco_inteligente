@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
+import config from "../../config.json";
 
 const DatosSensores = () => {
   const { userId } = useAuth();
@@ -23,7 +24,7 @@ const DatosSensores = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:3000/datos/${paramUserId}`,
+          `${config.api.url}/datos/${paramUserId}`,
           { withCredentials: true }
         );
 

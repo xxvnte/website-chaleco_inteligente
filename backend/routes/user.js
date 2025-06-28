@@ -1,5 +1,5 @@
 import express from "express";
-import sql from "../config/db.js";
+import { pool } from "../config/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import authenticate from "../middlewares/auth.js";
@@ -11,10 +11,11 @@ const router = express.Router();
 
 async function getUserById(id) {
   try {
-    const [user] = await sql`
-      SELECT * FROM usuario_info WHERE id_usuario = ${id}
-    `;
-    return user;
+    const user = await pool.query(
+      "SELECT * FROM usuario_info WHERE id_usuario = $1",
+      [id]
+    );
+    return user.rows[0];
   } catch (error) {
     console.error("Error al obtener el usuario:", error);
     throw error;
@@ -27,16 +28,19 @@ router.post("/register", async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(clave, 10);
-
-    const [result] = await sql`
-      INSERT INTO usuario_info 
-        (username, edad, peso, altura, sexo, clave, num_emergencia) 
-      VALUES 
-        (${nombre}, ${edad}, ${peso}, ${estatura}, ${genero}, ${hashedPassword}, ${contacto_de_confianza}) 
-      RETURNING id_usuario
-    `;
-
-    const userId = result.id_usuario;
+    const result = await pool.query(
+      "INSERT INTO usuario_info (username, edad, peso, altura, sexo, clave, num_emergencia) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
+      [
+        nombre,
+        edad,
+        peso,
+        estatura,
+        genero,
+        hashedPassword,
+        contacto_de_confianza,
+      ]
+    );
+    const userId = result.rows[0].id_usuario;
     console.log(`Usuario ${nombre} registrado con éxito.`);
     res.status(200).send("Cuenta creada");
   } catch (error) {
@@ -49,24 +53,18 @@ router.post("/login", async (req, res) => {
   const { nombre, clave } = req.body;
 
   try {
-    const user = await sql`
-      SELECT * FROM usuario_info WHERE username = ${nombre}
-    `;
+    const user = await pool.query(
+      "SELECT * FROM usuario_info WHERE username = $1",
+      [nombre]
+    );
 
-    console.log("Usuario encontrado:", user);
-
-    if (user.length > 0) {
-      const usuario = user[0];
-
-      if (await bcrypt.compare(clave, usuario.clave)) {
+    if (user.rows.length > 0) {
+      if (await bcrypt.compare(clave, user.rows[0].clave)) {
         const token = jwt.sign(
-          { id: usuario.id_usuario },
+          { id: user.rows[0].id_usuario },
           process.env.JWT_SECRET,
           { expiresIn: "1h" }
         );
-
-        console.log(`Usuario ${nombre} ha iniciado sesión con éxito.`);
-        console.log("Token generado:", token);
 
         res.cookie("token", token, {
           httpOnly: true,
@@ -76,8 +74,8 @@ router.post("/login", async (req, res) => {
         });
 
         req.session.isAuthenticated = true;
-        req.session.userId = usuario.id_usuario;
-        res.json({ success: true, userId: usuario.id_usuario });
+        req.session.userId = user.rows[0].id_usuario;
+        res.json({ success: true, userId: user.rows[0].id_usuario });
       } else {
         res.status(401).send("Nombre o clave incorrectos");
       }
@@ -92,8 +90,9 @@ router.post("/login", async (req, res) => {
 
 router.get("/user_profile/:id", authenticate, async (req, res) => {
   const { id } = req.params;
+  const { userId } = req.session;
 
-  if (parseInt(id, 10) !== parseInt(req.user.id, 10)) {
+  if (parseInt(id, 10) !== parseInt(userId, 10)) {
     return res.status(403).send("No tienes permiso para ver estos datos");
   }
 
@@ -117,7 +116,6 @@ router.get("/edit_user/:id", authenticate, async (req, res) => {
   try {
     const user = await getUserById(id);
     if (user) {
-      console.log("Usuario encontrado para editar:", user);
       return res.json(user);
     } else {
       return res.status(404).send("Usuario no encontrado");
@@ -133,27 +131,21 @@ router.post("/update_user/:id", authenticate, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [user] = await sql`
-      SELECT sexo FROM usuario_info WHERE id_usuario = ${id}
-    `;
-    const genero = user?.sexo;
+    const user = await pool.query(
+      "SELECT sexo FROM usuario_info WHERE id_usuario = $1",
+      [id]
+    );
+    const genero = user.rows[0].sexo;
 
-    let hashedPassword = null;
+    let hashedPassword;
     if (clave) {
       hashedPassword = await bcrypt.hash(clave, 10);
     }
 
-    await sql`
-      UPDATE usuario_info SET 
-        username = ${username}, 
-        num_emergencia = ${num_emergencia}, 
-        clave = COALESCE(${hashedPassword}, clave), 
-        edad = ${edad}, 
-        peso = ${peso}, 
-        sexo = ${genero}, 
-        altura = ${altura}
-      WHERE id_usuario = ${id}
-    `;
+    await pool.query(
+      "UPDATE usuario_info SET username = $2, num_emergencia = $3, clave = COALESCE($4, clave), edad = $5, peso = $6, sexo = $7, altura = $8 WHERE id_usuario = $1",
+      [id, username, num_emergencia, hashedPassword, edad, peso, genero, altura]
+    );
 
     res.json({ message: "Perfil actualizado" });
   } catch (error) {
@@ -178,8 +170,8 @@ router.post("/delete_user/:id", authenticate, async (req, res) => {
   }
 
   try {
-    await sql`DELETE FROM datos_sensores WHERE id_usuario = ${id}`;
-    await sql`DELETE FROM usuario_info WHERE id_usuario = ${id}`;
+    await pool.query("DELETE FROM datos_sensores WHERE id_usuario = $1", [id]);
+    await pool.query("DELETE FROM usuario_info WHERE id_usuario = $1", [id]);
 
     req.session.destroy(() => {
       res.clearCookie("token");

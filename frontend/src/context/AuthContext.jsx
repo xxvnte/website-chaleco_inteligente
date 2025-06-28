@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import config from "../../config.json";
 
 const AuthContext = createContext();
 
@@ -22,7 +23,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      const response = await fetch("http://localhost:3000/logout", {
+      const response = await fetch(`${config.api.url}/logout`, {
         method: "POST",
         credentials: "include",
       });

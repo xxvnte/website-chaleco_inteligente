@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import config from "../../config.json";
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch(`${config.api.url}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +215,7 @@ export function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${config.api.url}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +320,7 @@ export function EditUser() {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/user_profile/${userId}`,
+          `${config.api.url}/user_profile/${userId}`,
           { withCredentials: true }
         );
         setFormData(response.data);
@@ -347,7 +348,7 @@ export function EditUser() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/update_user/${userId}`,
+        `${config.api.url}/update_user/${userId}`,
         formData,
         {
           headers: {
