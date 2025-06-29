@@ -228,7 +228,7 @@ export function Login() {
         const data = await response.json();
         console.log("Datos de inicio de sesión:", data);
         if (data.success) {
-          login(data.userId);
+          login(data.userId, data.token);
           console.log("ID del usuario autenticado:", data.userId);
           navigate(`/user_profile/${data.userId}`);
         } else {
@@ -306,6 +306,7 @@ export function Login() {
 
 export function EditUser() {
   const { userId } = useParams();
+  const { getAuthHeaders } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     clave: "",
@@ -321,7 +322,10 @@ export function EditUser() {
       try {
         const response = await axios.get(
           `${config.api.url}/user_profile/${userId}`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+            headers: getAuthHeaders(),
+          }
         );
         setFormData(response.data);
       } catch (error) {
@@ -351,9 +355,7 @@ export function EditUser() {
         `${config.api.url}/update_user/${userId}`,
         formData,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
           withCredentials: true,
         }
       );

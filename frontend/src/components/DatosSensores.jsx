@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import config from "../../config.json";
 
 const DatosSensores = () => {
-  const { userId } = useAuth();
+  const { userId, getAuthHeaders } = useAuth();
   const { userId: paramUserId } = useParams();
   const [usuarioData, setUsuarioData] = useState({});
   const [saludData, setSaludData] = useState([]);
@@ -25,7 +25,10 @@ const DatosSensores = () => {
       try {
         const response = await axios.get(
           `${config.api.url}/datos/${paramUserId}`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+            headers: getAuthHeaders(),
+          }
         );
 
         setUsuarioData(response.data.user);
@@ -36,7 +39,10 @@ const DatosSensores = () => {
         calcularEstadisticasGPS(response.data.gpsData, response.data.user);
       } catch (error) {
         console.error("Error fetching data:", error);
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
           navigate("/login");
         }
       }

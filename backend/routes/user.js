@@ -68,14 +68,21 @@ router.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+          domain:
+            process.env.NODE_ENV === "production" ? ".onrender.com" : undefined,
         });
 
         req.session.isAuthenticated = true;
         req.session.userId = user.rows[0].id_usuario;
-        res.json({ success: true, userId: user.rows[0].id_usuario });
+
+        res.json({
+          success: true,
+          userId: user.rows[0].id_usuario,
+          token: token,
+        });
       } else {
         res.status(401).send("Nombre o clave incorrectos");
       }
@@ -154,10 +161,16 @@ router.post("/update_user/:id", authenticate, async (req, res) => {
   }
 });
 
-router.post("/logout", authenticate, (req, res) => {
-  req.session.destroy(() => {
+router.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error al cerrar sesión:", err);
+      return res.status(500).json({ message: "Error al cerrar sesión" });
+    }
+
     res.clearCookie("token");
-    res.status(200).send("Sesión cerrada");
+    res.clearCookie("connect.sid");
+    res.json({ message: "Sesión cerrada exitosamente" });
   });
 });
 

@@ -7,18 +7,27 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const savedAuth = localStorage.getItem("isAuthenticated");
-    return savedAuth === "true";
+    const token = localStorage.getItem("token");
+    return savedAuth === "true" && token !== null;
   });
   const [userId, setUserId] = useState(() => {
     return localStorage.getItem("userId") || null;
   });
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token") || null;
+  });
   const navigate = useNavigate();
 
-  const login = (id) => {
+  const login = (id, userToken = null) => {
     setIsAuthenticated(true);
     setUserId(id);
     localStorage.setItem("isAuthenticated", true);
     localStorage.setItem("userId", id);
+
+    if (userToken) {
+      setToken(userToken);
+      localStorage.setItem("token", userToken);
+    }
   };
 
   const logout = async () => {
@@ -26,24 +35,51 @@ export function AuthProvider({ children }) {
       const response = await fetch(`${config.api.url}/logout`, {
         method: "POST",
         credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      if (response.ok) {
-        setIsAuthenticated(false);
-        setUserId(null);
-        localStorage.removeItem("isAuthenticated");
-        localStorage.removeItem("userId");
-        navigate("/login");
-      } else {
-        console.error("Error al cerrar sesión");
-      }
+      setIsAuthenticated(false);
+      setUserId(null);
+      setToken(null);
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("token");
+      navigate("/login");
     } catch (error) {
       console.error("Error en la solicitud de cierre de sesión:", error);
+      setIsAuthenticated(false);
+      setUserId(null);
+      setToken(null);
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("token");
+      navigate("/login");
     }
   };
 
+  const getAuthHeaders = () => {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userId, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        userId,
+        token,
+        login,
+        logout,
+        getAuthHeaders,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import config from "../../config.json";
 
 export function UserCard() {
-  const { userId } = useAuth();
+  const { userId, getAuthHeaders } = useAuth();
   const { userId: paramUserId } = useParams();
   const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -25,9 +24,7 @@ export function UserCard() {
             {
               method: "GET",
               credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
 
@@ -57,9 +54,7 @@ export function UserCard() {
     try {
       const response = await fetch(`${config.api.url}/delete_user/${userId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         credentials: "include",
       });
 
